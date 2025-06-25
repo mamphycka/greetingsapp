@@ -1,0 +1,43 @@
+# Greetings App
+
+This is a simple Spring Boot application to manage People entities an generate personalized greetings using an external LLM.  
+The project contains the Java core code and a simple JavaScript + Html page for a UI demo.
+
+## Architecture overview
+- Rest controller(PeopleController.java) to expose basic CRUD operations for the People entity and to generate a 
+personalized greetings message. The controller is decorated with Swagger annotations for a simple API documentation
+which can be accessed through the following link: http://localhost:8080/swagger-ui/index.html
+- Business Logic is handled by the PeopleService interface, and it's implementation the PeopleServiceImpl. This contains 
+the core business logic with validation. It interacts with the data access layer and the external LLM service.
+- Data Access is handled by the PeopleRepository providing the CRUD database operations for the People entity.
+- External LLM service integration is done by the LLMWrapperService, and currently it's only implementation 
+LLMWrapperServiceImpl to communicate with a GPT4ALL locally run LLM model using REST calls.
+- Using a GlobalException handler handling the custom exceptions and return a readable and consistent of error reports
+- The frontend is a simple JavaScript + Html code 
+
+## Assumptions
+- If a real database was used instead if the in-memory H2 there should be a caching tool be available like REDIS to 
+prevent unnecessary calls to the database
+- Currently, enabled the cors for localhost access and for the JavaScript UI.
+- Added pagination when listing the people to only access a handful of records at a time
+- For this demo app not using Factory pattern for LLM service implementation as there is currently the GPT4ALL is supported.
+- One application.properties used as there is no dev/prod deployment of this application.
+- The endpoints are not secured because there is no JWT/OAuth authentication usage.
+
+
+## Building process
+- Prerequisites
+  - The code is using Java 17 and maven for dependency handling
+  - For the LLM download the GTP4ALL from here: https://www.nomic.ai/gpt4all. Then download the following LLM: 
+  **Llama 3 8B Instruct**. Check the following in the GPT4ALL application Settings view: **Enable Local API Server**
+- Building
+  - in the project folder run the following: **mvn clean install**
+- Running
+  - **mvn spring-boot:run**
+  - The application should be up and running
+  - Open the src/main/UI/base_ui.html to test the application using UI
+- Postman
+  - Attached a collection to try out the endpoints in Postman with the following name: Ip_Camp.postman_collection.json
+
+## Attachments
+- In the /assets folder can be found several photos of the UI.

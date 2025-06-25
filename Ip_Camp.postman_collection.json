@@ -1,0 +1,82 @@
+{
+	"info": {
+		"_postman_id": "810dbb20-e0ee-4708-9f7f-0e0016b2f230",
+		"name": "Ip_Camp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "33659712"
+	},
+	"item": [
+		{
+			"name": "Get All People",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/people"
+			},
+			"response": []
+		},
+		{
+			"name": "Load #1 People",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/people/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Create People",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"John Doe\",\r\n    \"age\": 33,\r\n    \"gender\": \"male\",\r\n    \"keywords\": [\"fishing\", \"hunting\"]\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/v1/people"
+			},
+			"response": []
+		},
+		{
+			"name": "Update people 1",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Jane Doe\",\r\n    \"age\": 66,\r\n    \"gender\": \"female\",\r\n    \"keywords\": [\r\n        \"travelling\",\r\n        \"reading\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/v1/people/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete people 1",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/people/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate greeting",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/people/1/greeting"
+			},
+			"response": []
+		}
+	]
+}

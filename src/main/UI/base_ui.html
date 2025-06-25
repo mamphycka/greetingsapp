@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>People Management App - Plain JS</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font, fallback to sans-serif */
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom right, #e0f7fa, #bbdefb);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+
+        .message-box {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading-message {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1976d2;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #d32f2f;
+        }
+
+        .success-message {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #388e3c;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .form-section, .list-section {
+            background-color: #fcfcfc;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #66afe9;
+            box-shadow: 0 0 0 0.2rem rgba(52, 144, 220, 0.25);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        button[type="submit"] {
+            background-color: #3498db;
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        button[type="button"] {
+            background-color: #bdc3c7;
+            color: #333;
+        }
+
+        button[type="button"]:hover {
+            background-color: #95a5a6;
+        }
+
+        .form-header button {
+            background-color: #2ecc71; /* Green for show/hide */
+            color: white;
+        }
+        .form-header button:hover {
+            background-color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners on table */
+        }
+
+        table th, table td {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        
+        table th {
+            background-color: #f2f4f6;
+            color: #555;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            cursor: pointer; /* Indicate sortable */
+            position: relative;
+        }
+
+        table th .sort-indicator {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7em;
+            color: #888;
+        }
+
+        table th.active-sort {
+            background-color: #e0eaf6; /* Highlight active sort column */
+        }
+
+        table th.active-sort .sort-indicator {
+            color: #3498db; /* Highlight active sort indicator */
+        }
+
+
+        table tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+
+        table tr:hover {
+            background-color: #eef2f5;
+        }
+
+        table td button {
+            background-color: #e0f2f7;
+            color: #2196f3;
+            border: 1px solid #90caf9;
+            padding: 6px 12px;
+            margin-right: 5px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border-radius: 5px;
+            box-shadow: none; /* Override default button shadow */
+        }
+        table td button:last-child {
+            margin-right: 0;
+        }
+
+        table td button:hover {
+            background-color: #c5e1a5; /* Lighter green */
+            color: #33691e;
+            transform: translateY(-1px);
+        }
+
+        table td button.edit-btn { background-color: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+        table td button.edit-btn:hover { background-color: #bbdefb; color: #0d47a1; }
+        table td button.delete-btn { background-color: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        table td button.delete-btn:hover { background-color: #ffcdd2; color: #b71c1c; }
+        table td button.greeting-btn { background-color: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        table td button.greeting-btn:hover { background-color: #c8e6c9; color: #1b5e20; }
+
+        .no-data-message {
+            text-align: center;
+            color: #777;
+            font-style: italic;
+            padding: 25px;
+            border: 1px dashed #cfd8dc;
+            border-radius: 8px;
+            margin-top: 25px;
+            background-color: #fdfefe;
+        }
+
+        /* Pagination controls */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #fcfcfc;
+            border-radius: 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .pagination-controls button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            background-color: #3498db;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .pagination-controls button:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        .pagination-controls button:disabled {
+            background-color: #b0d4f1;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .pagination-info {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .page-size-selector label {
+            margin-right: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+        .page-size-selector select {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            table th, table td {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+            table td button {
+                padding: 4px 8px;
+                font-size: 0.8em;
+                margin-bottom: 5px; /* Stack buttons on small screens */
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+            .form-actions button {
+                width: 100%;
+            }
+            .pagination-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+            .form-section, .list-section {
+                padding: 15px;
+            }
+            table {
+                font-size: 0.75em;
+            }
+        }
+
+        /* --- Custom Modal Styles --- */
+        .modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%; /* Could be more responsive */
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.4em;
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .modal-buttons .confirm-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .modal-buttons .confirm-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .modal-buttons .cancel-btn {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        .modal-buttons .cancel-btn:hover {
+            background-color: #b3b3b3;
+        }
+
+        .modal-buttons .alert-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 30px; /* Wider for single button */
+        }
+
+        .modal-buttons .alert-btn:hover {
+            background-color: #2980b9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>People Management App</h1>
+
+    <!-- Loading and Error Messages -->
+    <div class="message-box loading-message" id="loadingMessage" style="display: none;">
+        <svg class="animate-spin"
+             style="height: 24px; width: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #1976d2;"
+             viewBox="0 0 24 24"></svg>
+        <p>Loading...</p>
+    </div>
+    <div class="message-box error-message" id="errorMessage" style="display: none;">
+        <p></p>
+    </div>
+    <div class="message-box success-message" id="greetingMessage" style="display: none;">
+        <p></p>
+    </div>
+
+    <!-- Create/Update Form -->
+    <div class="form-section">
+        <div class="form-header">
+            <h2 id="formTitle">Add New Person</h2>
+            <button id="toggleFormBtn">Show Form</button>
+        </div>
+
+        <form id="personForm" style="display: none;">
+            <input id="personId" type="hidden">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input id="name" required type="text">
+            </div>
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input id="age" max="126" min="0" required type="number">
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="keywords">Keywords (comma-separated):</label>
+                <input id="keywords" placeholder="e.g., friendly, tech-savvy" type="text">
+            </div>
+            <div class="form-actions">
+                <button id="submitBtn" type="submit">Create Person</button>
+                <button id="cancelFormBtn" type="button">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- People List -->
+    <div class="list-section">
+        <h2>Existing People</h2>
+        <p class="no-data-message" id="noDataMessage" style="display: none;">
+            No people found. Add some above!
+        </p>
+        <table id="peopleTable" style="display: none;">
+            <thead>
+            <tr>
+                <!-- Added data-sort-column attributes for sorting -->
+                <th data-sort-column="id">ID <span class="sort-indicator" id="sort-id"></span></th>
+                <th data-sort-column="name">Name <span class="sort-indicator" id="sort-name"></span></th>
+                <th data-sort-column="age">Age <span class="sort-indicator" id="sort-age"></span></th>
+                <th data-sort-column="gender">Gender <span class="sort-indicator" id="sort-gender"></span></th>
+                <th>Keywords</th> <!-- Keywords not easily sortable as a string list -->
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- People rows will be injected here -->
+            </tbody>
+        </table>
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+            <div class="page-size-selector">
+                <label for="itemsPerPageSelect">Items per page:</label>
+                <select id="itemsPerPageSelect">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <button disabled id="prevPageBtn">&laquo; Previous</button>
+            <span class="pagination-info">Page <span id="currentPageSpan">1</span> of <span id="totalPagesSpan">1</span></span>
+            <button id="nextPageBtn">&raquo; Next</button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Modal Structure -->
+<div class="modal-overlay" id="customModal">
+    <div class="modal-content">
+        <h3 id="modalTitle"></h3>
+        <p id="modalMessage"></p>
+        <div class="modal-buttons">
+            <!-- Buttons will be injected by JS -->
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const API_BASE_URL = 'http://localhost:8080/api/v1/people';
+
+    // DOM Elements
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const greetingMessage = document.getElementById('greetingMessage');
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    const personForm = document.getElementById('personForm');
+    const formTitle = document.getElementById('formTitle');
+    const personIdInput = document.getElementById('personId');
+    const nameInput = document.getElementById('name');
+    const ageInput = document.getElementById('age');
+    const genderSelect = document.getElementById('gender');
+    const keywordsInput = document.getElementById('keywords');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelFormBtn = document.getElementById('cancelFormBtn');
+    const peopleTable = document.getElementById('peopleTable');
+    const peopleTableBody = peopleTable.querySelector('tbody');
+    const noDataMessage = document.getElementById('noDataMessage');
+
+    // Pagination Elements
+    const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const currentPageSpan = document.getElementById('currentPageSpan');
+    const totalPagesSpan = document.getElementById('totalPagesSpan');
+
+    // State variables for pagination and sorting
+    let currentPage = 0; // Backend uses 0-indexed pages for Spring Data Pageable
+    let itemsPerPage = parseInt(itemsPerPageSelect.value);
+    let sortColumn = 'id'; // Default sort column
+    let sortDirection = 'asc'; // 'asc' or 'desc'
+
+    let isEditing = false;
+    let currentEditingPersonId = null;
+
+    // --- Custom Modal Functions ---
+    function showModal(title, message, buttonsHtml) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modalButtons.innerHTML = buttonsHtml;
+        customModal.style.display = 'flex'; // Use flex to center
+    }
+
+    function hideModal() {
+        customModal.style.display = 'none';
+    }
+
+    function showAlert(message) {
+        showModal(
+            'Alert',
+            message,
+            '<button class="alert-btn" onclick="hideModal()">OK</button>'
+        );
+    }
+
+    function showConfirm(message, onConfirmCallback) {
+        showModal(
+            'Confirm Action',
+            message,
+            '<button class="confirm-btn" id="modalConfirmBtn">Confirm</button>' +
+            '<button class="cancel-btn" id="modalCancelBtn">Cancel</button>'
+        );
+
+        document.getElementById('modalConfirmBtn').onclick = () => {
+            hideModal();
+            onConfirmCallback();
+        };
+        document.getElementById('modalCancelBtn').onclick = hideModal;
+    }
+
+
+    // --- Message Display Functions ---
+    function showLoading(show) {
+        loadingMessage.style.display = show ? 'flex' : 'none';
+    }
+
+    function showError(message) {
+        errorMessage.querySelector('p').textContent = message;
+        errorMessage.style.display = 'block';
+        hideGreeting(); // Hide other messages
+    }
+
+    function hideError() {
+        errorMessage.style.display = 'none';
+    }
+
+    function showGreeting(message) {
+        greetingMessage.querySelector('p').textContent = message;
+        greetingMessage.style.display = 'block';
+        hideError(); // Hide other messages
+    }
+
+    function hideGreeting() {
+        greetingMessage.style.display = 'none';
+    }
+
+    // --- Form Management Functions ---
+    function toggleFormVisibility() {
+        const isFormHidden = personForm.style.display === 'none';
+        personForm.style.display = isFormHidden ? 'block' : 'none';
+        toggleFormBtn.textContent = isFormHidden ? 'Hide Form' : 'Show Form';
+
+        if (isFormHidden) { // If showing form, reset to add mode
+            clearForm();
+        }
+    }
+
+    function clearForm() {
+        personIdInput.value = '';
+        nameInput.value = '';
+        ageInput.value = 0;
+        genderSelect.value = 'male';
+        keywordsInput.value = '';
+        isEditing = false;
+        currentEditingPersonId = null;
+        formTitle.textContent = 'Add New Person';
+        submitBtn.textContent = 'Create Person';
+        hideError();
+        hideGreeting();
+    }
+
+    function populateFormForEdit(person) {
+        personIdInput.value = person.id;
+        nameInput.value = person.name;
+        ageInput.value = person.age;
+        genderSelect.value = person.gender;
+        keywordsInput.value = person.keywords ? person.keywords.join(', ') : '';
+        isEditing = true;
+        currentEditingPersonId = person.id;
+        formTitle.textContent = `Edit Person: ${person.name}`;
+        submitBtn.textContent = 'Update Person';
+
+        // Ensure form is visible
+        personForm.style.display = 'block';
+        toggleFormBtn.textContent = 'Hide Form';
+    }
+
+    // --- Data Fetching and Rendering ---
+    async function fetchPeopleData() {
+        showLoading(true);
+        hideError();
+        hideGreeting();
+        try {
+            // Construct URL with pagination and sorting parameters
+            const params = new URLSearchParams({
+                page: currentPage.toString(), // Spring Data Pageable is 0-indexed
+                size: itemsPerPage.toString(),
+                sort: `${sortColumn},${sortDirection}` // e.g., "id,asc"
+            });
+            const url = `${API_BASE_URL}?${params.toString()}`;
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            const pageData = await response.json(); // Backend returns a Page object
+
+            // Extract content and total pages from the Page object
+            const people = pageData.content;
+            const totalElements = pageData.totalElements; // Get total elements for pagination logic
+            const totalPages = pageData.totalPages; // Get total pages from backend
+
+            renderPeopleTable(people);
+            renderPaginationControls(totalElements, totalPages);
+            updateSortIndicators();
+
+        } catch (error) {
+            showError(`Failed to fetch people: ${error.message}`);
+            console.error('Error fetching people:', error);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function renderPeopleTable(people) {
+        peopleTableBody.innerHTML = ''; // Clear existing rows
+        if (people.length === 0) {
+            peopleTable.style.display = 'none';
+            noDataMessage.style.display = 'block';
+        } else {
+            peopleTable.style.display = 'table';
+            noDataMessage.style.display = 'none';
+            people.forEach(person => {
+                const row = peopleTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${person.id}</td>
+                    <td>${person.name}</td>
+                    <td>${person.age}</td>
+                    <td>${person.gender ? (person.gender.charAt(0).toUpperCase() + person.gender.slice(1)) : 'N/A'}</td>
+                    <td>${person.keywords && person.keywords.length > 0 ? person.keywords.join(', ') : 'None'}</td>
+                    <td>
+                        <button class="edit-btn" data-id="${person.id}">Edit</button>
+                        <button class="delete-btn" data-id="${person.id}" data-name="${person.name}">Delete</button>
+                        <button class="greeting-btn" data-id="${person.id}" data-name="${person.name}">Greeting</button>
+                    </td>
+                `;
+            });
+        }
+    }
+
+    function renderPaginationControls(totalItems, totalPages) {
+        currentPageSpan.textContent = currentPage + 1; // Display 1-indexed page number
+        totalPagesSpan.textContent = totalPages;
+
+        prevPageBtn.disabled = currentPage === 0; // First page is 0-indexed
+        nextPageBtn.disabled = currentPage === totalPages - 1 || totalPages === 0;
+
+        const paginationControlsDiv = document.querySelector('.pagination-controls');
+        if (totalItems === 0) {
+            paginationControlsDiv.style.display = 'none'; // Hide completely if no data
+        } else {
+            paginationControlsDiv.style.display = 'flex'; // Always show if there's data (even if only one page)
+        }
+    }
+
+    function updateSortIndicators() {
+        document.querySelectorAll('th[data-sort-column]').forEach(th => {
+            const indicator = th.querySelector('.sort-indicator');
+            if (th.dataset.sortColumn === sortColumn) {
+                th.classList.add('active-sort');
+                indicator.textContent = sortDirection === 'asc' ? '▲' : '▼';
+            } else {
+                th.classList.remove('active-sort');
+                indicator.textContent = ''; // Clear indicator for inactive columns
+            }
+        });
+    }
+
+    // --- Event Handlers ---
+
+    // Form submission (Create/Update)
+    personForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        showLoading(true);
+        hideError();
+        hideGreeting();
+
+        const personData = {
+            name: nameInput.value,
+            age: parseInt(ageInput.value, 10),
+            gender: genderSelect.value,
+            keywords: keywordsInput.value.split(',').map(k => k.trim()).filter(k => k.length > 0)
+        };
+
+        try {
+            let response;
+            if (isEditing) {
+                response = await fetch(`${API_BASE_URL}/${currentEditingPersonId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(personData)
+                });
+            } else {
+                response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(personData)
+                });
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            // After CUD operation, reset to first page and refetch data
+            currentPage = 0;
+            await fetchPeopleData();
+            clearForm();
+            personForm.style.display = 'none'; // Hide form after successful submission
+            toggleFormBtn.textContent = 'Show Form';
+        } catch (error) {
+            showError(`Operation failed: ${error.message}`);
+            console.error('Error submitting form:', error);
+        } finally {
+            showLoading(false);
+        }
+    });
+
+    // Cancel form button
+    cancelFormBtn.addEventListener('click', clearForm);
+
+    // Toggle form visibility button
+    toggleFormBtn.addEventListener('click', toggleFormVisibility);
+
+
+    // Table action buttons (Edit, Delete, Greeting)
+    peopleTableBody.addEventListener('click', async (event) => {
+        const target = event.target;
+        const id = target.dataset.id;
+        const name = target.dataset.name;
+
+        if (target.classList.contains('edit-btn')) {
+            showLoading(true);
+            hideError();
+            hideGreeting();
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                }
+                const person = await response.json();
+                populateFormForEdit(person);
+            } catch (error) {
+                showError(`Failed to load person for edit: ${error.message}`);
+                console.error('Error fetching person for edit:', error);
+            } finally {
+                showLoading(false);
+            }
+        } else if (target.classList.contains('delete-btn')) {
+            showConfirm(`Are you sure you want to delete ${name}?`, async () => {
+                showLoading(true);
+                hideError();
+                hideGreeting();
+                try {
+                    const response = await fetch(`${API_BASE_URL}/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                    }
+                    // After deletion, reset to first page and refetch data
+                    currentPage = 0;
+                    await fetchPeopleData();
+                    if (currentEditingPersonId == id) { // Check if the deleted item was being edited
+                        clearForm();
+                    }
+                } catch (error) {
+                    showError(`Failed to delete person: ${error.message}`);
+                    console.error('Error deleting person:', error);
+                } finally {
+                    showLoading(false);
+                }
+            });
+        } else if (target.classList.contains('greeting-btn')) {
+            showLoading(true);
+            hideError();
+            hideGreeting();
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}/greeting`, {
+                    method: 'POST'
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json(); // Assuming MessageResponse { message: "..." }
+                showGreeting(`Greeting for ${name}: "${data.message}"`);
+            } catch (error) {
+                showError(`Failed to generate greeting: ${error.message}`);
+                console.error('Error generating greeting:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+    });
+
+    // --- Pagination Event Listeners ---
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 0) { // Check against 0-indexed page
+            currentPage--;
+            fetchPeopleData();
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        const totalPages = parseInt(totalPagesSpan.textContent); // Get total pages from displayed info
+        if (currentPage < totalPages - 1) { // Check against 0-indexed total pages
+            currentPage++;
+            fetchPeopleData();
+        }
+    });
+
+    itemsPerPageSelect.addEventListener('change', (event) => {
+        itemsPerPage = parseInt(event.target.value);
+        currentPage = 0; // Reset to first page (0-indexed) when items per page changes
+        fetchPeopleData();
+    });
+
+    // --- Sorting Event Listeners ---
+    document.querySelectorAll('th[data-sort-column]').forEach(header => {
+        header.addEventListener('click', () => {
+            const column = header.dataset.sortColumn;
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc'; // Default to ascending when changing column
+            }
+            currentPage = 0; // Reset to first page after sorting
+            fetchPeopleData();
+        });
+    });
+
+    // Initial fetch when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set initial itemsPerPage from select element
+        itemsPerPage = parseInt(itemsPerPageSelect.value);
+        fetchPeopleData();
+    });
+</script>
+</body>
+</html>
