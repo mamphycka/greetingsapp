@@ -23,6 +23,7 @@ prevent unnecessary calls to the database
 - For this demo app not using Factory pattern for LLM service implementation as there is currently the GPT4ALL is supported.
 - One application.properties used as there is no dev/prod deployment of this application.
 - The endpoints are not secured because there is no JWT/OAuth authentication usage.
+- There should be schema file for the table creation and the sequence creation
 
 
 ## Building process
